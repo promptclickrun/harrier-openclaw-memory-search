@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Runtime / logs / generated index
+state/
+*.log
+.index/
+
+# OS
+.DS_Store
+
+# Model cache (downloaded weights should never be committed)
+models/
+*.safetensors
+*.bin
+
+# Secrets (never commit)
+*.key
+*.pem
+secrets.*

@@ -1,0 +1,18 @@
+[project]
+name = "harrier-openclaw-memory-search"
+version = "1.0.0"
+description = "Local Harrier (Ollama-compatible) embedding server + OpenClaw memory-search integration pattern"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "sentence-transformers>=2.6.0",
+    "torch>=2.2.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools]
+packages = []

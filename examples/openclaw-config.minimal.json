@@ -1,0 +1,14 @@
+{
+  "_comment": "Minimal OpenClaw memorySearch snippet. Merge the memorySearch block into your agent config (agents.<name> in openclaw.json). Point baseUrl at the local Harrier server.",
+  "memorySearch": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "harrier",
+    "remote": {
+      "baseUrl": "http://127.0.0.1:18840"
+    },
+    "cache": {
+      "enabled": true
+    }
+  }
+}

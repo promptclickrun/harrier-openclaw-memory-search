@@ -1,0 +1,38 @@
+{
+  // Full OpenClaw memorySearch block with hybrid retrieval tuned for
+  // markdown agent memory. This mirrors a production-style configuration:
+  // vector + lexical hybrid, MMR diversity, and temporal decay so recent
+  // memory ranks higher. Place under agents.<name> in openclaw.json.
+  "memorySearch": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "harrier",
+    "remote": {
+      // The Harrier server speaks the Ollama embedding API. No real Ollama
+      // install is required; this wrapper stands in for it.
+      "baseUrl": "http://127.0.0.1:18840"
+    },
+    "cache": {
+      "enabled": true
+    },
+    "experimental": {
+      // Index in-session memory in addition to on-disk markdown files.
+      "sessionMemory": true
+    },
+    "query": {
+      "hybrid": {
+        "enabled": true,
+        "vectorWeight": 0.7,
+        "textWeight": 0.3,
+        "mmr": {
+          "enabled": true,
+          "lambda": 0.7
+        },
+        "temporalDecay": {
+          "enabled": true,
+          "halfLifeDays": 30
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  launchd template for the Harrier embedding server (macOS).
+
+  1. Copy to ~/Library/LaunchAgents/com.example.harrier.plist
+  2. Replace __PYTHON__ with your python3 path (e.g. /opt/homebrew/bin/python3)
+  3. Replace __REPO__ with the absolute path to this repository
+  4. Adjust HARRIER_* env vars as needed
+  5. launchctl load ~/Library/LaunchAgents/com.example.harrier.plist
+
+  KeepAlive=true relaunches the server if it crashes or after reboot.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.harrier</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__PYTHON__</string>
+        <string>__REPO__/server/harrier_server.py</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HARRIER_PORT</key>
+        <string>18840</string>
+        <key>HARRIER_HOST</key>
+        <string>127.0.0.1</string>
+        <!-- Pin the device if auto-detection misbehaves: mps | cuda | cpu -->
+        <!-- <key>HARRIER_DEVICE</key><string>mps</string> -->
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__REPO__/state/harrier-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>__REPO__/state/harrier-stderr.log</string>
+</dict>
+</plist>
