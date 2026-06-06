@@ -1,10 +1,9 @@
 # Harrier × OpenClaw: local semantic memory search
 
-Stand up a **local-first semantic memory-search layer** for an
-[OpenClaw](https://docs.openclaw.ai) agent, backed by a small embedding model
-served over an Ollama-compatible HTTP API. No external embedding service, no
-data leaving the machine, and your agent's memory stays in plain searchable
-markdown files.
+Give your [OpenClaw](https://docs.openclaw.ai) agent a **local semantic
+memory**: searchable, private, and stored as plain markdown. This repo runs a
+small embedding model behind an Ollama-compatible HTTP API so your agent can
+recall context without sending anything off-machine.
 
 ```
 OpenClaw memory_search  ──►  Harrier embedding server  ──►  markdown memory files
@@ -13,10 +12,10 @@ OpenClaw memory_search  ──►  Harrier embedding server  ──►  markdown
 
 ## What this is
 
-- A ~200-line Python **embedding server** (`server/harrier_server.py`) that
-  wraps `microsoft/harrier-oss-v1-0.6b` (sentence-transformers / safetensors,
-  **not GGUF**) and exposes the Ollama embedding API (`/api/embed`,
-  `/api/embeddings`, `/health`, `/api/tags`).
+- A ~200-line Python **embedding server** (`server/harrier_server.py`) wrapping
+  `microsoft/harrier-oss-v1-0.6b` (sentence-transformers / safetensors, **not
+  GGUF**) behind the Ollama embedding API (`/api/embed`, `/api/embeddings`,
+  `/health`, `/api/tags`).
 - The **OpenClaw config** that points `memorySearch` at it
   (`examples/openclaw-config.*`).
 - A **launchd template** to keep it running on macOS.
@@ -25,28 +24,37 @@ OpenClaw memory_search  ──►  Harrier embedding server  ──►  markdown
 
 ## Why it's useful
 
-OpenClaw can use any Ollama-compatible embedding endpoint for memory search.
-Rather than installing Ollama, this repo runs one tiny server that turns a local
-sentence-transformers model into that endpoint. The result:
+OpenClaw already knows how to talk to any Ollama-compatible embedding endpoint
+for memory search. So instead of installing full Ollama, you can run one small
+server that turns a local sentence-transformers model into that endpoint. That's
+the whole trick.
 
-- **Local-first**: embeddings computed on your Mac's GPU (MPS), nothing sent to
-  a hosted embedding API.
-- **Markdown-native**: your agent's long-term memory stays as readable,
-  diffable `.md` files instead of an opaque vector store.
-- **Repeatable ops**: one launchd service, one config block, one smoke test.
+What you get out of it:
 
-## Showcase angle (honest version)
+- **Your data stays local.** Embeddings are computed on your Mac's GPU (MPS),
+  and nothing leaves the machine.
+- **Memory stays readable.** Your agent's long-term knowledge lives in `.md`
+  files you can read, diff, and version instead of an opaque vector store.
+- **The ops are boring on purpose.** One launchd service, one config block, one
+  smoke test. If it breaks, you'll know.
 
-Embeddings and semantic search are **not novel** — sentence-transformers has
-done cosine similarity over text for years. The valuable, reusable part here is
-the **practical OpenClaw integration and the repeatable operational pattern**:
+## What's actually reusable here
 
-- a minimal Ollama-API shim so OpenClaw "just works" with a local model,
-- a keep-alive service template,
-- a hybrid + temporal-decay retrieval config tuned for agent memory,
-- a smoke test so you know the layer is healthy before you trust recall.
+Embeddings and cosine similarity are not new. Sentence-transformers has done
+this for years, so if you're looking for a novel retrieval algorithm, this is
+the wrong repo.
 
-In other words: the wiring and the ops are the product, not the math.
+What is worth borrowing is the integration pattern:
+
+- A minimal Ollama-API shim so OpenClaw's `memory_search` works with any local
+  model out of the box.
+- A keep-alive service template you can adapt to your own machine.
+- A hybrid retrieval config with lexical matching, MMR, and temporal decay tuned
+  for agent memory.
+- A smoke-test path that proves the layer is healthy before you trust recall.
+
+The useful artifact here is the wiring: local model, plain markdown memory,
+OpenClaw config, launchd service, and validation steps packaged together.
 
 ## Quick start (macOS / Apple Silicon)
 
