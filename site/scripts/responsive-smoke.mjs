@@ -28,10 +28,39 @@ function startPreview() {
   const child = spawn('npm', ['run', 'preview', '--', '--host', '127.0.0.1', '--port', '4173'], {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, BROWSER: 'none' },
+    detached: process.platform !== 'win32',
   });
   child.stdout.on('data', (chunk) => process.stdout.write(chunk));
   child.stderr.on('data', (chunk) => process.stderr.write(chunk));
   return child;
+}
+
+function stopPreview(child) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      try {
+        if (process.platform !== 'win32') process.kill(-child.pid, 'SIGKILL');
+        else child.kill('SIGKILL');
+      } catch {
+        // already gone
+      }
+      resolve();
+    }, 2500);
+
+    child.once('exit', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+
+    try {
+      if (process.platform !== 'win32') process.kill(-child.pid, 'SIGTERM');
+      else child.kill('SIGTERM');
+    } catch {
+      clearTimeout(timer);
+      resolve();
+    }
+  });
 }
 
 async function inspectViewport(page, viewport) {
@@ -156,5 +185,5 @@ try {
   }
 } finally {
   if (browser) await browser.close();
-  preview.kill('SIGTERM');
+  await stopPreview(preview);
 }
