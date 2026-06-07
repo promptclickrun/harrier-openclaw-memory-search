@@ -31,7 +31,9 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      - run: npm run build
+      - run: npm run lint -- --quiet
+      - run: npm run test -- --run
+      - run: npm run test:responsive
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

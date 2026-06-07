@@ -6,13 +6,13 @@ type CodeBlockProps = {
 
 export function CodeBlock({ code, label, lang = "jsonc" }: CodeBlockProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-black/5 bg-terminal shadow-[0_24px_70px_-40px_rgba(0,0,0,0.55)]">
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
+    <div className="min-w-0 max-w-full overflow-hidden rounded-xl border border-black/5 bg-terminal shadow-[0_24px_70px_-40px_rgba(0,0,0,0.55)]">
+      <div className="flex min-w-0 items-center gap-2 border-b border-white/10 px-4 py-2.5">
         <span className="size-2.5 rounded-full bg-[#ff5f57]" />
         <span className="size-2.5 rounded-full bg-[#febc2e]" />
         <span className="size-2.5 rounded-full bg-[#28c840]" />
         {label && (
-          <span className="ml-2 font-mono text-[11px] tracking-wide text-white/40">
+          <span className="ml-2 min-w-0 truncate font-mono text-[11px] tracking-wide text-white/40">
             {label}
           </span>
         )}
@@ -20,8 +20,8 @@ export function CodeBlock({ code, label, lang = "jsonc" }: CodeBlockProps) {
           {lang}
         </span>
       </div>
-      <pre className="overflow-x-auto px-4 py-4 font-mono text-[12.5px] leading-relaxed text-white/85">
-        <code>{code}</code>
+      <pre className="max-w-full overflow-x-auto overscroll-x-contain px-4 py-4 font-mono text-[12.5px] leading-relaxed text-white/85">
+        <code className="block min-w-max whitespace-pre">{code}</code>
       </pre>
     </div>
   );

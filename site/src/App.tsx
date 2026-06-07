@@ -167,7 +167,7 @@ function Fork() {
             <div
               key={c.title}
               className={[
-                "flex flex-col rounded-2xl border bg-white p-6 sm:p-8",
+                "flex min-w-0 flex-col rounded-2xl border bg-white p-6 sm:p-8",
                 c.accent
                   ? "border-emerald/40 emerald-glow"
                   : "border-hairline",
@@ -297,14 +297,14 @@ function Architecture() {
           />
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-2xl border border-hairline bg-canvas-soft p-6 sm:p-7">
+        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="min-w-0 rounded-2xl border border-hairline bg-canvas-soft p-6 sm:p-7">
             <div className="flex items-center gap-2 text-sm font-semibold text-ink">
               <Icon name="layers" className="size-4 text-emerald-deep" />
               Ollama-compatible surface
             </div>
-            <div className="mt-5 overflow-hidden rounded-xl border border-hairline">
-              <table className="w-full text-left text-sm">
+            <div className="mt-5 max-w-full overflow-x-auto rounded-xl border border-hairline">
+              <table className="min-w-[520px] text-left text-sm">
                 <thead className="bg-white text-[12px] uppercase tracking-wide text-ink-faint">
                   <tr>
                     <th className="px-4 py-2.5 font-medium">Method</th>
@@ -331,7 +331,7 @@ function Architecture() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-hairline bg-canvas-soft p-6 sm:p-7">
+          <div className="min-w-0 rounded-2xl border border-hairline bg-canvas-soft p-6 sm:p-7">
             <div className="flex items-center gap-2 text-sm font-semibold text-ink">
               <Icon name="arrow" className="size-4 text-emerald-deep" />
               Retrieval flow
@@ -374,12 +374,12 @@ function Setup() {
           sub="macOS / Apple Silicon quick start. Each step is a single command; the smoke test proves the layer is healthy before you trust recall."
         />
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <ol className="space-y-3">
+        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <ol className="min-w-0 space-y-3">
             {setupSteps.map((s) => (
               <li
                 key={s.step}
-                className="group rounded-xl border border-hairline bg-white p-5 transition-colors hover:border-emerald/40"
+                className="group min-w-0 rounded-xl border border-hairline bg-white p-5 transition-colors hover:border-emerald/40"
               >
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-[12px] font-semibold text-emerald-deep">
@@ -388,19 +388,19 @@ function Setup() {
                   <span className="text-sm font-semibold text-ink">
                     {s.title}
                   </span>
-                  <span className="ml-auto text-[12px] text-ink-faint">
+                  <span className="ml-auto min-w-0 text-right text-[12px] text-ink-faint">
                     {s.note}
                   </span>
                 </div>
-                <pre className="mt-3 overflow-x-auto rounded-lg bg-terminal px-3.5 py-2.5 font-mono text-[12px] text-emerald">
-                  <code>$ {s.command}</code>
+                <pre className="mt-3 max-w-full overflow-x-auto overscroll-x-contain rounded-lg bg-terminal px-3.5 py-2.5 font-mono text-[12px] text-emerald">
+                  <code className="block min-w-max whitespace-pre">$ {s.command}</code>
                 </pre>
               </li>
             ))}
           </ol>
 
-          <div className="flex flex-col gap-5">
-            <div className="rounded-xl border border-black/5 bg-terminal p-1 shadow-[0_24px_70px_-40px_rgba(0,0,0,0.6)]">
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="min-w-0 rounded-xl border border-black/5 bg-terminal p-1 shadow-[0_24px_70px_-40px_rgba(0,0,0,0.6)]">
               <div className="flex items-center gap-2 px-3 py-2.5">
                 <span className="size-2.5 rounded-full bg-[#ff5f57]" />
                 <span className="size-2.5 rounded-full bg-[#febc2e]" />
@@ -410,18 +410,19 @@ function Setup() {
                   smoke_test.sh
                 </span>
               </div>
-              <pre className="overflow-x-auto px-4 pb-4 pt-1 font-mono text-[12px] leading-relaxed">
+              <pre className="max-w-full overflow-x-auto overscroll-x-contain px-4 pb-4 pt-1 font-mono text-[12px] leading-relaxed">
                 {smokeTranscript.map((line, i) => (
                   <div
                     key={i}
                     className={
-                      line.kind === "cmd"
+                      "min-w-max whitespace-pre " +
+                      (line.kind === "cmd"
                         ? "text-emerald"
                         : line.kind === "ok"
                           ? "text-white/85"
                           : line.kind === "pass"
                             ? "mt-1 font-semibold text-emerald"
-                            : "text-white/45"
+                            : "text-white/45")
                     }
                   >
                     {line.kind === "cmd" ? `$ ${line.text}` : line.text}
@@ -520,7 +521,7 @@ function Features() {
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          <div>
+          <div className="min-w-0">
             <h3 className="text-lg font-semibold tracking-tight text-ink">
               Hybrid retrieval config
             </h3>
@@ -572,8 +573,8 @@ npm run preview          # optional local check
   return (
     <section className="border-b border-hairline bg-ink text-white">
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center">
+          <div className="min-w-0">
             <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald">
               Ship it
             </div>
