@@ -196,6 +196,27 @@ launchd/com.example.harrier.plist
 tests/test_smoke.py
 ```
 
+## Showcase site (GitHub Pages)
+
+A modern, responsive React + TypeScript + Tailwind landing page for this
+project lives in [`site/`](site/). It explains the native-Ollama vs Harrier
+shim fork, the architecture, setup/validation flow, and the hybrid retrieval
+config. Build it locally:
+
+```bash
+cd site
+npm ci
+npm run build      # static bundle in site/dist, base /harrier-openclaw-memory-search/
+npm run preview    # optional local check
+```
+
+Deploy: enable **Settings → Pages → Source: GitHub Actions**. The bundled
+workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml)
+builds `site/` and publishes `site/dist` on pushes to `main`. See
+[`site/README.md`](site/README.md) for details. (The visual language is
+inspired by modern developer-tool design and is not affiliated with any third
+party.)
+
 ## Provenance & licensing
 
 The server is a small Ollama-compatible wrapper around a local sentence-transformers

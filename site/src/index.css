@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Inter var", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "Menlo",
+    "Consolas", monospace;
+
+  --color-ink: #171717;
+  --color-ink-soft: #4b4b4b;
+  --color-ink-faint: #6b7280;
+
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #fbfbfb;
+  --color-hairline: #ededed;
+  --color-hairline-strong: #e0e0e0;
+
+  --color-emerald: #3ecf8e;
+  --color-emerald-deep: #24b47e;
+
+  --color-terminal: #1c1c1c;
+  --color-terminal-soft: #232323;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-emerald) 30%, white);
+    color: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, var(--color-hairline) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-hairline) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .emerald-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-emerald) 40%, white),
+      0 18px 60px -24px color-mix(in oklab, var(--color-emerald) 65%, white);
+  }
+}
