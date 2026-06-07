@@ -31,8 +31,9 @@ describe("App", () => {
     }
   });
 
-  it("includes the GitHub Pages deploy command", () => {
+  it("keeps app copy focused on the Harrier solution", () => {
     render(<App />);
-    expect(screen.getByText(/npm run build/i)).toBeInTheDocument();
+    expect(screen.queryByText(/GitHub Pages ready/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/npm run build/i)).not.toBeInTheDocument();
   });
 });

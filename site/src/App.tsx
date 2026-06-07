@@ -560,44 +560,6 @@ function Features() {
   );
 }
 
-function Deploy() {
-  const deployCmd = `# from repo root
-cd site
-npm ci
-npm run build            # outputs site/dist (base = /harrier-openclaw-memory-search/)
-npm run preview          # optional local check
-
-# Deploy: push to main and let the bundled GitHub Pages
-# workflow (.github/workflows/deploy-pages.yml) publish site/dist,
-# or upload site/dist with the gh-pages tool of your choice.`;
-  return (
-    <section className="border-b border-hairline bg-ink text-white">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center">
-          <div className="min-w-0">
-            <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald">
-              Ship it
-            </div>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              GitHub Pages ready
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-white/65">
-              The Vite base path already matches the project repo. Build the
-              static bundle and publish{" "}
-              <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[13px] text-emerald">
-                site/dist
-              </code>{" "}
-              with the included workflow. No extra architecture decisions
-              required.
-            </p>
-          </div>
-          <CodeBlock code={deployCmd} label="deploy" lang="bash" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Footer() {
   return (
     <footer className="bg-white">
@@ -639,7 +601,6 @@ export default function App() {
         <Architecture />
         <Setup />
         <Features />
-        <Deploy />
       </main>
       <Footer />
     </div>
