@@ -1,12 +1,22 @@
-# Harrier × OpenClaw: local semantic memory search
+# Sentence Transformers × OpenClaw: local semantic memory search
 
 Give your [OpenClaw](https://docs.openclaw.ai) agent a **local semantic
-memory**: searchable, private, and stored as plain markdown. This repo runs a
-small embedding model behind an Ollama-compatible HTTP API so your agent can
-recall context without sending anything off-machine.
+memory**: searchable, private, and stored as plain markdown.
+
+Important shortcut: OpenClaw already supports Ollama as a native
+`memorySearch` embedding provider. If you just want local embeddings, the
+fastest supported path is usually to run Ollama, pull `nomic-embed-text`, set
+`memorySearch.provider` to `"ollama"`, and rebuild your memory index.
+
+This repo is for the sentence-transformers / safetensors path: it shows how to
+wrap a local embedding model behind an Ollama-compatible HTTP API, then package
+the OpenClaw config, launchd service, smoke tests, and demo corpus around it.
+The included example model is Microsoft's `microsoft/harrier-oss-v1-0.6b`.
+
+![Local agent memory architecture](docs/assets/agent-memory/local-agent-memory-architecture.png)
 
 ```
-OpenClaw memory_search  ──►  Harrier embedding server  ──►  markdown memory files
+OpenClaw memory_search  ──►  ST/safetensors embedding server  ──►  markdown memory files
    (memorySearch cfg)         (this repo, port 18840)        (MEMORY.md, memory/*.md)
 ```
 
@@ -22,21 +32,59 @@ OpenClaw memory_search  ──►  Harrier embedding server  ──►  markdown
 - A **mock memory corpus** and **query demo** that show semantic concept recall.
 - A **smoke script** and **pytest** suite that confirm the vector output shape.
 
-## Why it's useful
+## If you just want local OpenClaw embeddings
 
-OpenClaw already knows how to talk to any Ollama-compatible embedding endpoint
-for memory search. So instead of installing full Ollama, you can run one small
-server that turns a local sentence-transformers model into that endpoint. That's
-the whole trick.
+Use OpenClaw's native Ollama support first. For most people, this is the boring
+15-minute path:
 
-What you get out of it:
+```bash
+ollama pull nomic-embed-text
+# then set memorySearch.provider to "ollama" and rebuild the index
+openclaw memory index --force
+```
 
-- **Your data stays local.** Embeddings are computed on your Mac's GPU (MPS),
-  and nothing leaves the machine.
-- **Memory stays readable.** Your agent's long-term knowledge lives in `.md`
-  files you can read, diff, and version instead of an opaque vector store.
-- **The ops are boring on purpose.** One launchd service, one config block, one
-  smoke test. If it breaks, you'll know.
+A minimal OpenClaw config looks like this:
+
+```jsonc
+{
+  "agents": {
+    "defaults": {
+      "memorySearch": {
+        "provider": "ollama",
+        "model": "nomic-embed-text"
+      }
+    }
+  }
+}
+```
+
+If Ollama is on another machine, set `memorySearch.remote.baseUrl` to that host,
+for example `http://gpu-box.local:11434`. OpenClaw also supports custom provider
+ids that use `api: "ollama"` when you want memory embeddings routed to a
+dedicated Ollama endpoint.
+
+![Native Ollama vs sentence-transformers bridge](docs/assets/agent-memory/native-ollama-vs-bridge.png)
+
+## Why this repo still exists
+
+Many useful embedding models are distributed as sentence-transformers /
+safetensors packages rather than normal `ollama pull ...` models. This repo
+turns that kind of local model into the Ollama-compatible embedding endpoint
+that OpenClaw already knows how to call.
+
+Use this repo if you want one of these specifically:
+
+- **Sentence-transformers / safetensors embeddings.** Run local embedding
+  models that are not available through normal Ollama model pulls while keeping
+  OpenClaw configured through the Ollama memory-search adapter.
+- **A concrete Harrier example.** The bundled config uses
+  `microsoft/harrier-oss-v1-0.6b`, but the pattern is model-agnostic.
+- **A minimal shim pattern.** Adapt the ~200-line server for another local
+  embedding model with the same style of Python loading path.
+- **Packaged validation and ops.** Reuse the launchd template, config examples,
+  smoke tests, and mock corpus instead of assembling those pieces from scratch.
+- **Plain markdown memory.** Keep long-term knowledge in `.md` files you can
+  read, diff, and version, with semantic lookup layered on top.
 
 ## What's actually reusable here
 
@@ -46,17 +94,18 @@ the wrong repo.
 
 What is worth borrowing is the integration pattern:
 
-- A minimal Ollama-API shim so OpenClaw's `memory_search` works with any local
-  model out of the box.
+- A minimal Ollama-API shim for sentence-transformers / safetensors embedding
+  models that OpenClaw cannot pull through native Ollama.
 - A keep-alive service template you can adapt to your own machine.
 - A hybrid retrieval config with lexical matching, MMR, and temporal decay tuned
   for agent memory.
 - A smoke-test path that proves the layer is healthy before you trust recall.
 
-The useful artifact here is the wiring: local model, plain markdown memory,
-OpenClaw config, launchd service, and validation steps packaged together.
+The useful artifact here is the wiring: local sentence-transformers model,
+plain markdown memory, OpenClaw config, launchd service, and validation steps
+packaged together.
 
-## Quick start (macOS / Apple Silicon)
+## Embedding server quick start (macOS / Apple Silicon)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -78,10 +127,12 @@ Full platform notes: [`docs/setup-macos.md`](docs/setup-macos.md) and
 [`docs/setup-other-platforms.md`](docs/setup-other-platforms.md).
 Architecture: [`docs/architecture.md`](docs/architecture.md).
 
-## Wire it into OpenClaw
+## Wire the embedding server into OpenClaw
 
-Merge a `memorySearch` block into your agent config (`agents.<name>` in
-`openclaw.json`). Minimal version:
+For the native Ollama shortcut, use the config in the section above. For this
+sentence-transformers shim, merge a `memorySearch` block into your agent config
+(`agents.<name>` in `openclaw.json`). The default example model is Harrier, so
+the minimal version uses `model: "harrier"`:
 
 ```json
 {
@@ -111,7 +162,7 @@ it picks up the new `memorySearch` settings, then call the `memory_search` tool.
    Expected shape: `{"model":"harrier","embedding":[0.0094, -0.0628, ...]}` —
    a 1024-element float array.
 3. **Smoke test**: `scripts/smoke_test.sh` (asserts health + vector shape).
-4. **Configure OpenClaw**: add the `memorySearch` block, restart the gateway.
+4. **Configure OpenClaw**: add the shim `memorySearch` block, restart the gateway.
 5. **Run memory_search**: ask the agent to recall a concept; expected result
    shape is a ranked list of `{file, chunk, score, text}` entries, highest
    cosine similarity first.
@@ -121,12 +172,14 @@ it picks up the new `memorySearch` settings, then call the `memory_search` tool.
    above the unrelated garden/car distractor entries, showing concept recall
    rather than keyword match.
 
+![Semantic recall demo results](docs/assets/agent-memory/semantic-recall-demo-results.png)
+
 ## Repository layout
 
 ```
 README.md
 pyproject.toml / requirements.txt
-server/harrier_server.py        # Ollama-compatible embedding server
+server/harrier_server.py        # Ollama-compatible ST/safetensors embedding server
 scripts/
   run_server.sh                 # launcher
   smoke_test.sh                 # health + vector-shape check
